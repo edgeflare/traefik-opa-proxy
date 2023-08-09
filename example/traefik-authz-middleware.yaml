@@ -1,0 +1,10 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: opa-authz
+  namespace: default
+spec:
+  forwardAuth:
+    address: http://traefik-opa-proxy.kube-system
+    trustForwardHeader: true
+---

@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: opa
+  name: opa
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa
+  template:
+    metadata:
+      labels:
+        app: opa
+    spec:
+      containers:
+      - image: openpolicyagent/opa:0.55.0
+        name: opa
+        ports:
+        - containerPort: 8181
+        args:
+        - run
+        - --server
+        - --set=decision_logs.console=true
+        - --set=services.authz.url=http://opa-bundle-server
+        - --set=bundles.authz.service=authz
+        - --set=bundles.authz.resource=/bundles/bundle.tar.gz
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: opa
+  name: opa
+  namespace: kube-system
+spec:
+  ports:
+  - name: http
+    port: 8181
+    protocol: TCP
+    targetPort: 8181
+  selector:
+    app: opa
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: opa-bundle-server
+  name: opa-bundle-server
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa-bundle-server
+  template:
+    metadata:
+      labels:
+        app: opa-bundle-server
+    spec:
+      containers:
+      - image: docker.io/nginxinc/nginx-unprivileged
+        name: nginx
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: demo-authz-policy
+          mountPath: /usr/share/nginx/html/bundles
+          readOnly: true
+      volumes:
+      - name: demo-authz-policy
+        configMap:
+          name: demo-authz-policy
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: opa-bundle-server
+  name: opa-bundle-server
+  namespace: kube-system
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: opa-bundle-server
+  type: ClusterIP
+---

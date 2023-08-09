@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: traefik-opa-proxy
+  name: traefik-opa-proxy
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: traefik-opa-proxy
+  template:
+    metadata:
+      labels:
+        app: traefik-opa-proxy
+    spec:
+      containers:
+      - image: docker.io/edgeflare/traefik-opa-proxy:v0.0.1
+        name: traefik-opa-proxy
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8182
+        env:
+        - name: OPA_URL
+          value: http://opa.kube-system:8181/v1/data/httpapi/authz
+        - name: SERVICE_PORT
+          value: "8182"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: traefik-opa-proxy
+  name: traefik-opa-proxy
+  namespace: kube-system
+spec:
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8182
+  selector:
+    app: traefik-opa-proxy
+  type: ClusterIP
+---

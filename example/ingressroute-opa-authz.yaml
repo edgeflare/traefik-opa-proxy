@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: ingressroute-opa-authz
+  namespace: default
+spec:
+  entryPoints:
+  - web
+  - websecure
+  routes:
+  - match: Host(`example.com`) # replace with your domain
+    kind: Rule
+    services:
+    - name: http-echo
+      port: 80
+    middlewares:
+    - name: opa-authz
+  tls:
+    secretName: example.com-tls # replace with your tls secret
