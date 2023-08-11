@@ -6,6 +6,8 @@
 
 This `traefik-opa-proxy` translates OPA's decisions into HTTP status codes: a 403 Forbidden for `{"allow": false}` and a 200 OK for `{"allow": true}`. Use this service with Traefik forwardAuth middleware instead of connecting directly to OPA. The payload sent from Traefik to OPA matches the format expected by the [OPA-Envoy plugin](https://github.com/open-policy-agent/opa-envoy-plugin), so the same policies should work with Envoy based proxies, e.g., Istio and Gloo without modification.
 
+> ## UPDATE: This repo is archived in favor of https://github.com/edgeflare/traefikopa. It can be useful when Traefik installation can't be modified with plugin or you don't need, for example, request body for OPA policy evaluation.
+
 ## Test locally
 
 Start the proxy in a terminal window

@@ -66,7 +66,6 @@ func startProxy(c *cli.Context) error {
 	e := echo.New()
 	e.Logger.SetLevel(log.INFO)
 	e.Use(middleware.Logger())
-	e.Use(middleware.CORS())
 	e.Use(middleware.Recover())
 	e.Any("/*", getAuthorizationFromOPA(config.OPA_URL))
 
